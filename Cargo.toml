@@ -1,0 +1,23 @@
+# https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package]
+name = "tide-content-type-filter"
+description = "Tide middleware to filter requests based on their Content-Type."
+version = "0.1.0"
+edition = "2018"
+authors = ["Bauke <me@bauke.xyz>"]
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/tide-content-type-filter"
+repository = "https://github.com/Bauke/tide-content-type-filter"
+readme = "README.md"
+keywords = ["tide", "middleware"]
+
+[lib]
+path = "source/lib.rs"
+
+[dependencies]
+tide = "0.16"
+
+[dev-dependencies]
+async-std = { version = "1.9.0", features = ["attributes"] }
+tide-testing = "0.1.3"
