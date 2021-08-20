@@ -17,6 +17,17 @@ let mut server = tide::new();
 server.with(ContentTypeFilter::only("application/json"));
 ```
 
+Only process requests with `Content-Type: image/png` or
+`Content-Type: image/jpeg`:
+
+```rust
+use tide_content_type_filter::ContentTypeFilter;
+
+let mut server = tide::new();
+
+server.with(ContentTypeFilter::any(vec!["image/png", "image/jpeg"]));
+```
+
 ## License
 
 Licensed under either of

@@ -18,11 +18,24 @@
 //! server.with(ContentTypeFilter::only("application/json"));
 //! # });
 //! ```
+//!
+//! Only process requests with `Content-Type: image/png` or
+//! `Content-Type: image/jpeg`:
+//!
+//! ```rust
+//! # async_std::task::block_on(async {
+//! use tide_content_type_filter::ContentTypeFilter;
+//!
+//! let mut server = tide::new();
+//!
+//! server.with(ContentTypeFilter::any(vec!["image/png", "image/jpeg"]));
+//! # });
+//! ```
 
 /// A middleware for filtering requests based on their Content-Type.
 #[derive(Clone, Debug)]
 pub struct ContentTypeFilter {
-  content_type: tide::http::Mime,
+  content_types: Vec<tide::http::Mime>,
 }
 
 impl ContentTypeFilter {
@@ -33,7 +46,18 @@ impl ContentTypeFilter {
   /// status code.
   pub fn only<T: Into<tide::http::Mime>>(content_type: T) -> Self {
     Self {
-      content_type: content_type.into(),
+      content_types: vec![content_type.into()],
+    }
+  }
+
+  /// Creates a new filter that will only allow requests through where the
+  /// content type matches any of the specified ones.
+  ///
+  /// Any other content types will return a HTTP 415 Unsupported Media Type
+  /// status code.
+  pub fn any<T: Into<tide::http::Mime>>(content_types: Vec<T>) -> Self {
+    Self {
+      content_types: content_types.into_iter().map(Into::into).collect(),
     }
   }
 }
@@ -48,7 +72,7 @@ impl<State: Clone + Send + Sync + 'static> tide::Middleware<State>
     next: tide::Next<'_, State>,
   ) -> tide::Result {
     if let Some(content_type) = request.content_type() {
-      if content_type == self.content_type {
+      if self.content_types.contains(&content_type) {
         return Ok(next.run(request).await);
       }
     }
