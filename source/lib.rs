@@ -72,7 +72,13 @@ impl<State: Clone + Send + Sync + 'static> tide::Middleware<State>
     next: tide::Next<'_, State>,
   ) -> tide::Result {
     if let Some(content_type) = request.content_type() {
-      if self.content_types.contains(&content_type) {
+      if self.content_types.contains(&content_type)
+        || self
+          .content_types
+          .iter()
+          .filter(|allowed| allowed.subtype() == "*")
+          .any(|allowed| allowed.basetype() == content_type.basetype())
+      {
         return Ok(next.run(request).await);
       }
     }

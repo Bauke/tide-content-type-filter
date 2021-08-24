@@ -3,7 +3,7 @@
 [package]
 name = "tide-content-type-filter"
 description = "Tide middleware to filter requests based on their Content-Type."
-version = "0.2.0"
+version = "0.3.0"
 edition = "2018"
 authors = ["Bauke <me@bauke.xyz>"]
 license = "MIT OR Apache-2.0"

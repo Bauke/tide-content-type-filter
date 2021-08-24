@@ -28,6 +28,8 @@ let mut server = tide::new();
 server.with(ContentTypeFilter::any(vec!["image/png", "image/jpeg"]));
 ```
 
+Any content type's subtype (the part after the `/`) may also be a `*` to act as a wildcard (ie. only match the base type, the part before the `/`). So `image/*` will match `image/png`, `image/jpeg`, etc.
+
 ## License
 
 Licensed under either of
