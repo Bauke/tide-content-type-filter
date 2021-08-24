@@ -10,19 +10,19 @@ async fn test_only_filter() {
 
   server.at("/").get(only_route);
 
-  let mut ok = server.get("/").content_type("text/plain").await.unwrap();
-  assert_eq!(ok.status(), tide::http::StatusCode::Ok);
-  assert_eq!(ok.body_string().await.unwrap(), "text/plain".to_string());
+  let requests = vec![
+    ("text/plain", tide::http::StatusCode::Ok),
+    ("text/html", tide::http::StatusCode::UnsupportedMediaType),
+  ];
 
-  let unsupported = server
-    .get("/")
-    .content_type("application/json")
-    .await
-    .unwrap();
-  assert_eq!(
-    unsupported.status(),
-    tide::http::StatusCode::UnsupportedMediaType
-  );
+  for (content_type, status) in requests {
+    let mut response =
+      server.get("/").content_type(content_type).await.unwrap();
+    assert_eq!(response.status(), status);
+    if status.is_success() {
+      assert_eq!(&response.body_string().await.unwrap(), content_type);
+    }
+  }
 }
 
 async fn only_route(request: tide::Request<()>) -> tide::Result {

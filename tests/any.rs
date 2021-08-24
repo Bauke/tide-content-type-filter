@@ -11,19 +11,20 @@ async fn test_any_filter() {
 
   server.at("/").get(any_route);
 
-  let mut ok = server.get("/").content_type("image/png").await.unwrap();
-  assert_eq!(ok.status(), tide::http::StatusCode::Ok);
-  assert_eq!(ok.body_string().await.unwrap(), "image/png".to_string());
+  let requests = vec![
+    ("image/png", tide::http::StatusCode::Ok),
+    ("image/jpeg", tide::http::StatusCode::Ok),
+    ("image/tiff", tide::http::StatusCode::UnsupportedMediaType),
+  ];
 
-  let mut ok = server.get("/").content_type("image/jpeg").await.unwrap();
-  assert_eq!(ok.status(), tide::http::StatusCode::Ok);
-  assert_eq!(ok.body_string().await.unwrap(), "image/jpeg".to_string());
-
-  let unsupported = server.get("/").content_type("image/tiff").await.unwrap();
-  assert_eq!(
-    unsupported.status(),
-    tide::http::StatusCode::UnsupportedMediaType
-  );
+  for (content_type, status) in requests {
+    let mut response =
+      server.get("/").content_type(content_type).await.unwrap();
+    assert_eq!(response.status(), status);
+    if status.is_success() {
+      assert_eq!(&response.body_string().await.unwrap(), content_type);
+    }
+  }
 }
 
 async fn any_route(request: tide::Request<()>) -> tide::Result {
